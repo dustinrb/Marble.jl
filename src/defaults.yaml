@@ -1,0 +1,18 @@
+watch: false
+debug: true
+
+# Document settings
+fontsize: 11pt
+papersize: letterpaper
+toc: false
+imagewidth: 4in
+
+# Template Engin settings (Jinja)
+template: draft
+templatedir: ""
+JINJA_block_start_string: "<%"
+JINJA_block_end_string: "%>"
+JINJA_variable_start_string: "<|"
+JINJA_variable_end_string: "|>"
+JINJA_comment_start_string: "<#"
+JINJA_comment_end_string: "#>"

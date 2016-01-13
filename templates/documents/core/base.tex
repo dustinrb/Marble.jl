@@ -1,0 +1,50 @@
+\documentclass[<|settings.fontsize|>,<|settings.papersize|>]{<% block documentclass %>article<% endblock %>}
+<% block packages %>
+% Packages
+\usepackage{etex}
+\usepackage{fontspec}
+\usepackage{setspace}
+\usepackage[backend=biber, style=chem-acs, citestyle=numeric, sorting=none]{biblatex}
+\usepackage[margin=1in]{geometry}
+\usepackage{chemfig}
+\usepackage[version=3]{mhchem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{csquotes}
+\usepackage[perpage,symbol]{footmisc}
+\usepackage{indentfirst}
+<% block packages_extra %><% endblock %>
+<% endblock %>
+
+% Package Configs
+<% block packageconf %>
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{Inconsolata}
+<% block packageconf_extra %><% endblock %>
+<% endblock %>
+
+% Document Information
+<% block docconf %>
+<% if settings.title %>\title{<|settings.title|>}<% endif %>
+<% if settings.authors %>\author{<% for author in settings.authors %><| author.name |><%if not loop.last%> \and<%endif%><% endfor %>}<% endif %>
+\date{<|settings.date|>}
+<% if settings.citationfile %>\addbibresource{<|settings.citationfile|>}<% endif %>
+<% endblock %>
+
+% Begin the actual document
+\begin{document}
+% Front matter
+<% block content %>
+<% if settings.title %>\maketitle<% endif %>
+<% if abstract %>\begin{abstract}<|abstract|>\end{abstract}<% endif %>
+<% if settings.toc %>\tableofcontents<% endif %>
+
+% The Content
+<|content|>
+
+% Bibliography
+\printbibliography
+<% endblock %>
+\end{document}
