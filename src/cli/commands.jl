@@ -1,28 +1,19 @@
 "Given a directory, watches for changes to the main document and rebuilds
 the whole project when it's saved"
 function make(path)
-    env = MarbleEnv()
 
     println("Loading settings... ") # LOGGING
-
-    # Load default settings
-    load_conf_file!(env, "$(Pkg.dir("Marble"))/src/defaults.yaml")
-
-    # Loard reader settings
-    load_conf_file!(env, "$(ENV["HOME"])/.mrbl/settings.yaml")
-
-    # Make some session settings
     dirname = split(path, '/')[end]
-    session_settings = Dict(
-        "workdir" => path,
-        "dirname" => dirname,
-        "maindoc" => "$dirname.md",
+    env = MarbleEnv(
+        load_conf_file!("$(Pkg.dir("Marble"))/src/defaults.yaml"), # Defaults
+        load_conf_file!("$(ENV["HOME"])/.mrbl/settings.yaml"), # User settings
+        Dict(
+            "workdir" => path,
+            "dirname" => dirname,
+            "maindoc" => "$dirname.md",
+        ),
+        load_conf_file!("$path/settings.yaml") # Project Settings
     )
-    add!(env.settings, session_settings)
-
-    # Read project settings
-    load_conf_file!(env, "$path/settings.yaml")
-
     # Now that we've bootstraped ourselves, let's get going
     println("Building... ") # LOGGIN
     run_build_loop(env)

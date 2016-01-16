@@ -49,7 +49,7 @@ type InlineData
     function InlineData(raw, md::Markdown.MD)
         t = split(raw, '|')
         text = t[1]
-        format  = get(t, 2, "{}") # Just print the value
+        format  = get(t, 2, "") # Just print the value
         return new(text, format)
     end
 end

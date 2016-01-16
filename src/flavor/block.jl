@@ -18,6 +18,17 @@ type Figure
     end
 end
 
+# Prototype for future rendering method rendering style is
+# specified on a per-field basis
+function META(md::Figure)
+    return Dict(
+        :path => :raw,
+        :name => :raw,
+        :caption => :interpreted,
+        :tex => :raw
+    )
+end
+
 ### Table ###
 type Table
     path

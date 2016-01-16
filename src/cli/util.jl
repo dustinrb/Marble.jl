@@ -1,12 +1,12 @@
 """
 Loads in a specified YAML file if it exists. Otherwise, it fails gracefully
 """
-function load_conf_file!(env::MarbleEnv, path)
+function load_conf_file!(path)
     if isfile(path)
         if extension(path) in ["yaml", "yml"]
-            add!(env.settings, SettingsYAMLFile(path))
+            return SettingsYAMLFile(path)
         elseif extension(path) in ["json"]
-            add!(env.settings, SettingsJSONFile(path))
+            return SettingsJSONFile(path)
         else
             error("Marble does not know how to handle settings files of type \"$(extension(path))\"")
         end

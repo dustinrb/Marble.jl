@@ -3,8 +3,8 @@
 # Use github flavored markdown as our starting point
 mrbl = deepcopy(Markdown.github)
 
-include("elements/block.jl")
-include("elements/inline.jl")
+include("block.jl")
+include("inline.jl")
 # Inserted infront of the paragraph element because that's the catch-all case
 insert!(mrbl.regular, length(mrbl.regular), YAMLelement)
 mrbl.inner['('] = [interpreted_inline]

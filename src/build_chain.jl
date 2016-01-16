@@ -7,11 +7,48 @@ type MarbleEnv
     content::AbstractString # Rendered markdown tree w/o templating
     final::AbstractString # Final document, ready for handoff to another processor
     is_built::Bool # Did the other processor successfully exicute
-    templates # Templateing environment
-    skratch # Places for individual elements to store and share data
+    templates::LazyTemplateLoader # Templateing environment
+    scratch # Place for individual elements to store and share data while rendering
 
-    MarbleEnv() = new(SettingsBundle(), Markdown.MD(), "", "", false)
+    function MarbleEnv(settings_sources...)
+        this = new(SettingsBundle(settings_sources...), Markdown.MD(), "", "", false)
+
+        this.templates = LazyTemplateLoader([
+                this.settings["templatedir"],
+                "$(ENV["HOME"])/.mrbl/templates",
+                "$(Pkg.dir("Marble"))/templates"
+            ];
+            block_start_string=this.settings["JINJA_block_start_string"],
+            block_end_string=this.settings["JINJA_block_end_string"],
+            variable_start_string=this.settings["JINJA_variable_start_string"],
+            variable_end_string=this.settings["JINJA_variable_end_string"],
+            comment_start_string=this.settings["JINJA_comment_start_string"],
+            comment_end_string=this.settings["JINJA_comment_end_string"],
+            keep_trailing_newline=true
+        )
+
+        this.scratch = Dict()
+        return this
+    end
 end
+
+# """ Creates a Jinja2 ENV based on the settings ENV """
+# function mkjinjaenv(env::MarbleEnv)
+#     return jinja2.Environment(
+#         loader=jinja2.FileSystemLoader([
+#             env.settings["templatedir"],
+#             "$(ENV["HOME"])/.mrbl/templates",
+#             "$(Pkg.dir("Marble"))/templates"
+#         ]),
+#         block_start_string=env.settings["JINJA_block_start_string"],
+#         block_end_string=env.settings["JINJA_block_end_string"],
+#         variable_start_string=env.settings["JINJA_variable_start_string"],
+#         variable_end_string=env.settings["JINJA_variable_end_string"],
+#         comment_start_string=env.settings["JINJA_comment_start_string"],
+#         comment_end_string=env.settings["JINJA_comment_end_string"],
+#         keep_trailing_newline=true
+#     )
+# end
 
 """
 Takes in a MarbleEnv and parses the Markdown in the primary_file setting
@@ -21,10 +58,27 @@ function Base.parse(env::MarbleEnv)
         println("PARSING") # LOGGING
     end
 
+    # Execute the analysis script. This will give it a chance to create any CSVs
+    if "analysis" in keys(env.settings)
+        try
+            exec =  map(split(env.settings["analysiscmd"], ' ')) do command
+                if command == "\$analysis"
+                    return env.settings["analysis"]
+                else
+                    return command
+                end
+            end
+            env.scratch[:analysis] = JSON.parse(readall(`$exec`))
+        catch y
+            # throw(y)
+            warn("Analysis script `$(env.settings["analysis"])` failed to run.")
+            # println(y)
+        end
+    end
+
     # Make sure they provide us with a valid file
     path = "$(env.settings["workdir"])/$(env.settings["maindoc"])"
-    if isfile(path)
-    else
+    if !isfile(path)
         error("`$path` does not exist. Create it, or change the 'maindoc' setting in this project's settings.yaml")
     end
 
@@ -45,7 +99,6 @@ function process(env::MarbleEnv)
     for i in 1:length(env.tree.content)
         n = length(env.tree.content) + 1 - i
         if isa(env.tree.content[n], Document)
-            println("ADDING DOC")
             add!(env.settings, env.tree.content[n].data)
         end
     end
@@ -63,16 +116,7 @@ function render(env::MarbleEnv)
         println("RENDERING") # LOGGING
     end
 
-    # pfn(x) = println(get_template_name(x))
-    # function pfn(x::Base.Markdown.Paragraph)
-    #     println(get_template_name(x))
-    #     pfn(x.content)
-    # end
-    # pfn(x::AbstractArray) = map(pfn, x)
-    # pfn(env.tree.content)
-
     env.content = jinja(env, env.tree)
-    # show(env.content)
 end
 
 """
@@ -83,8 +127,7 @@ function template(env::MarbleEnv)
         println("TEMLATING") # LOGGING
     end
 
-    println("documents/$(env.settings["template"]).tex")
-    env.final = render(env.templates, "documents/$(env.settings["template"]).tex";
+    env.final = JinjaTemplates.render(env.templates, "documents/$(env.settings["template"]).tex";
         settings=flatten(env.settings),
         content=env.content
     )
@@ -106,5 +149,11 @@ function build(env::MarbleEnv)
     open(texfile, "w") do f
         write(f, env.final)
     end
-    run(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`)
+
+    try
+        run(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`)
+        println("DONE")
+    catch y
+        println("BUILD FAILED")
+    end
 end

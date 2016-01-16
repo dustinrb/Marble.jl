@@ -1,10 +1,7 @@
-include("templating.jl")
-
-""" Renders a given element tree by passing elements thru Jinja tempaltes """
+using JinjaTemplates
+""" JinjaTemplates.renders a given element tree by passing elements thru Jinja Templates """
 function jinja(env, md::Markdown.MD)
-    env.templates = LazyTemplateLoader(env)
-
-    # return render(l, "elements/latex/Paragraph.tex"; paragraph="Paragraph")
+    env.scratch[:settings_cache] = flatten(env.settings)
     stream = IOBuffer()
     for element in md.content
         println(stream, jinja(env, element))
@@ -22,7 +19,7 @@ function jinja(env, md)
     for i in fieldnames(md)
         fields[i] = jinja(env, getfield(md, i))
     end
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex"; settings=flatten(env.settings), fields...)
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex"; settings=env.scratch[:settings_cache], fields...)
 end
 
 # Elements which need special attention
@@ -32,16 +29,16 @@ function jinja(env, md::Base.Markdown.List)
     listitems = map(md.items) do item
         return jinja(env, item)
     end
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
         ordered=md.ordered,
         items=listitems)
 end
 
-jinja(env, md::Base.Markdown.Code) = render(
+jinja(env, md::Base.Markdown.Code) = JinjaTemplates.render(
     env.templates,
     "elements/latex/$(get_template_name(md)).tex";
-    settings=flatten(env.settings),
+    settings=env.scratch[:settings_cache],
     language=md.language,
     code=md.code
     )
@@ -61,8 +58,8 @@ function jinja(env, md::Base.Markdown.Table)
             return "center"
         end
     end
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
         headers = headers,
         content = content,
         alignment = alignment)
@@ -76,8 +73,8 @@ function jinja(env, md::Marble.Table)
     # headers = map(md.headers) do row
     #     return [jinja(env, col) for col in row]
     # end
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
         path=md.path,
         name=md.name,
         content=md.content,
@@ -86,34 +83,45 @@ function jinja(env, md::Marble.Table)
         alignment=md.alignment)
 end
 
+function jinja(env, md::Marble.Figure)
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
+        name=md.name,
+        path=md.path,
+        caption=jinja(env, md.caption),
+        tex=md.tex)
+end
+
 function jinja(env, md::Marble.Equation)
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
         name=md.name,
         content=md.content)
 end
 
+function jinja(env, md::Marble.Tex)
+    return return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
+        content=md.content)
+end
+
 function jinja(env, md::Marble.InlineCite)
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
         sources=md.sources)
 end
 
 function jinja(env, md::Marble.InlineUnit)
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
         units=md.units)
 end
 
 function jinja(env, md::Marble.InlineData)
-    return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
-        text=md.text,
-        format=md.format)
-end
-
-function jinja(env, md::Marble.Tex)
-    return return render(env.templates, "elements/latex/$(get_template_name(md)).tex";
-        settings=flatten(env.settings),
-        content=md.content)
+    text = fmt(md.format, env.scratch[:analysis][md.text])
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
+        text=text,
+        format=md.format,
+        original=md.text)
 end
