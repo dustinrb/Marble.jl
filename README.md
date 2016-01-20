@@ -55,10 +55,10 @@ Now, from the Julia REPL, install Marble and its dependancies. Please note that 
 
 ```julia
 # Install dependancies
-Pkg.clone("")
-Pkg.clone("")
+Pkg.clone("https://github.com/dustinrb/JinjaTemplates.jl.git")
+Pkg.clone("https://github.com/dustinrb/SettingsBundles.jl.git")
 # Install Marble
-Pkg.clone("")
+Pkg.clone("https://github.com/dustinrb/Marble.jl.git")
 ```
 
 Finally, link the Marble CLI to your /usr/loca/bin directory
@@ -293,11 +293,11 @@ This is a quote
 #### Code
 
 In:
-~~~
+<pre>
 ```js
 This is a fenced code block
 ```
-~~~
+</pre>
 
 Out:
 ```
