@@ -293,11 +293,11 @@ This is a quote
 #### Code
 
 In:
-~~~md
+<pre>
 ```js
 This is a fenced code block
 ```
-~~~
+</pre>
 
 Out:
 ```
