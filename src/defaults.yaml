@@ -6,7 +6,7 @@ fontsize: 11pt
 papersize: letterpaper
 toc: false
 imagewidth: 4in
-analysiscmd: julia <|filename|>
+analysiscmd: julia $filename
 
 # Template Engin settings (Jinja)
 template: draft

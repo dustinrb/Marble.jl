@@ -7,8 +7,10 @@ include("block.jl")
 include("inline.jl")
 # Inserted infront of the paragraph element because that's the catch-all case
 insert!(mrbl.regular, length(mrbl.regular), YAMLelement)
+insert!(mrbl.regular, length(mrbl.regular), Markdown.horizontalrule)
 mrbl.inner['('] = [interpreted_inline]
 mrbl.inner['\$'] = [inline_math]
+mrbl.inner['`'] = [inline_code]
 Markdown.flavors[:mrbl] = mrbl
 
 ### DEBUG INFO. DO NOT DELETE YET ###

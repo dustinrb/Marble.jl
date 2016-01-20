@@ -6,6 +6,12 @@ type InlineMath
     InlineMath(text, md::Markdown.MD) = return new(text)
 end
 
+### math ###
+type InlineCode
+    text
+    InlineCode(text, md::Markdown.MD) = return new(text)
+end
+
 ### Tex ###
 type InlineTex
     text
@@ -56,8 +62,15 @@ end
 
 """ Does more traditional Tex/Pandoc style inline math. """
 function inline_math(stream::IO, md::Markdown.MD)
+    # The follow does not support whitespace between delimeters, so we won't be using it
     result = Markdown.parse_inline_wrapper(stream, "\$")
     return result === nothing ? nothing : InlineMath(result, md)
+end
+
+""" Does more traditional Tex/Pandoc style inline math. """
+function inline_code(stream::IO, md::Markdown.MD)
+    result = Markdown.parse_inline_wrapper(stream, "`")
+    return result === nothing ? nothing : InlineCode(result, md)
 end
 
 # Trigger is (

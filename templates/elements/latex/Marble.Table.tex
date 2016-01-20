@@ -3,7 +3,7 @@
     \caption{<|caption|>}
     \begin{tabular}{<% for h in alignment %><% if h == "right" %>r<% elif h == "left" %>l<% elif h == "decimal" %>S<% else %>c<% endif %><% endfor %>}
         \toprule
-        <| headers|join(' & ') |> \\
+        <% for header in headers %>{<|header|>} <%if not loop.last%>& <%endif%><% endfor %> \\
         \midrule
         <% for row in content %><| row|join(' & ') |> \\
         <% endfor %>

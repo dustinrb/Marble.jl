@@ -18,9 +18,10 @@
 
 % Package Configs
 <% block packageconf %>
-\setmainfont{CMU Serif}
-\setsansfont{CMU Sans Serif}
-\setmonofont{Inconsolata}
+<% if settings.font_main %>\setmainfont{<|settings.font_main|>}<% endif %>
+<% if settings.font_sans %>\setsansfont{<|settings.font_sans|>}<% endif %>
+<% if settings.font_mono %>\setmonofont{<|settings.font_mono|>}<% endif %>
+<# \setmathfont{Latin Modern Math} #>
 <% block packageconf_extra %><% endblock %>
 <% endblock %>
 
@@ -31,6 +32,7 @@
 \date{<|settings.date|>}
 <% if settings.citationfile %>\addbibresource{<|settings.citationfile|>}<% endif %>
 <% endblock %>
+<|settings.header_tex|>
 
 % Begin the actual document
 \begin{document}

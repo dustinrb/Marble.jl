@@ -24,31 +24,14 @@ type MarbleEnv
             variable_end_string=this.settings["JINJA_variable_end_string"],
             comment_start_string=this.settings["JINJA_comment_start_string"],
             comment_end_string=this.settings["JINJA_comment_end_string"],
-            keep_trailing_newline=true
+            keep_trailing_newline=true,
+            # trim_blocks=true
         )
 
         this.scratch = Dict()
         return this
     end
 end
-
-# """ Creates a Jinja2 ENV based on the settings ENV """
-# function mkjinjaenv(env::MarbleEnv)
-#     return jinja2.Environment(
-#         loader=jinja2.FileSystemLoader([
-#             env.settings["templatedir"],
-#             "$(ENV["HOME"])/.mrbl/templates",
-#             "$(Pkg.dir("Marble"))/templates"
-#         ]),
-#         block_start_string=env.settings["JINJA_block_start_string"],
-#         block_end_string=env.settings["JINJA_block_end_string"],
-#         variable_start_string=env.settings["JINJA_variable_start_string"],
-#         variable_end_string=env.settings["JINJA_variable_end_string"],
-#         comment_start_string=env.settings["JINJA_comment_start_string"],
-#         comment_end_string=env.settings["JINJA_comment_end_string"],
-#         keep_trailing_newline=true
-#     )
-# end
 
 """
 Takes in a MarbleEnv and parses the Markdown in the primary_file setting
@@ -72,7 +55,7 @@ function Base.parse(env::MarbleEnv)
         catch y
             # throw(y)
             warn("Analysis script `$(env.settings["analysis"])` failed to run.")
-            # println(y)
+            println(y)
         end
     end
 
