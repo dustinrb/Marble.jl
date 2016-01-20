@@ -45,7 +45,8 @@ function Base.parse(env::MarbleEnv)
     if "analysis" in keys(env.settings)
         try
             exec =  map(split(env.settings["analysiscmd"], ' ')) do command
-                if command == "\$analysis"
+                println(command)
+                if command == "\$filename"
                     return env.settings["analysis"]
                 else
                     return command
@@ -54,6 +55,7 @@ function Base.parse(env::MarbleEnv)
             env.scratch[:analysis] = JSON.parse(readall(`$exec`))
         catch y
             # throw(y)
+            env.scratch[:analysis] = Dict()
             warn("Analysis script `$(env.settings["analysis"])` failed to run.")
             println(y)
         end
