@@ -5,10 +5,10 @@
 Marble is yet another academic Markdown flavor. It emphasizes an easy transition from Markdown to Latex. Consequently, it currently cannot convert files into HTML. So, what does Marble offer:
 
 1. Highly configurable output. Marble uses Jinja2 templating to control the rending of each element. Each template can be easily overwritten.
-2. First class support for figures, tables, and equations
+2. First class support for [figures](#figure), [tables](#table), [equations](#equation), and [analysis script output](#data)
 3. Readable Latex output
 
-**NOTE:** Marble is currently a proof of concept. Installation and error handling are currently not as smooth as they should be, and Marble has not yet been submitted to the official Julia package index. Please open an issue on github if you encounter any problems.
+**NOTE:** Marble is currently a proof of concept. Installation and error handling are currently not as smooth as they should be, and Marble has not yet been submitted to the official Julia package index due to lack of testing. Please open an issue on github if you encounter any problems.
 
 ## Installation
 
@@ -32,7 +32,7 @@ Marble is written in the Julia programming language, but also relies Jinja2 whic
 
 #### Linux
 
-This project has not been tested on Linux; however, I do not see why it should not work. Here are some hypothetical instructions.
+This project has not been tested on Linux. Here are some hypothetical instructions.
 
 1. Install [Julia](http://julialang.org) (>= 4.2), either with your package manager or from a binary. The Marble command line tool expects Julia to be installed at `/usr/local/bin/julia` so it may be necessary to create a symbolic link or modify  the first line in `src/marble.jl`.
 2. Install TexLive and make sure `latexmk` and `xelatex` work
@@ -70,6 +70,8 @@ ln -s $HOME/.julia/v0.4/Marble/src/cli/marble.jl /usr/local/bin/mrbl
 ## Using Marble
 
 ### Creating a Marble Project
+
+**NOTE:** The `project-init` branch of this project has preliminary support for the `mrbl init [path]` command. This command creates the a project folder at the specified path, instantiates a git repository, and adds a git hook to build the project on commit.
 
 To use marble for a project, create a directory as so:
 

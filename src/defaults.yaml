@@ -1,5 +1,6 @@
 watch: false
 debug: false
+topdf: true
 
 # Document settings
 fontsize: 11pt
@@ -8,7 +9,8 @@ toc: false
 imagewidth: 4in
 analysiscmd: julia $filename
 
-# Template Engin settings (Jinja)
+# Template Engine settings (Jinja)
+maindoc: document.md
 template: draft
 templatedir: "templates"
 JINJA_block_start_string: "<%"
