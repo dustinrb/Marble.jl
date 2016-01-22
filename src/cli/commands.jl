@@ -36,4 +36,7 @@ end
 function init_project(path)
     projectname = split(path, '/')[end]
     mkpath(path)
+    run(`cp -r $(Pkg.dir("Marble"))/templates/project/ $path`)
+    cd(path)
+    run(`sh $(Pkg.dir("Marble"))/src/cli/init_scripts/init.sh`)
 end

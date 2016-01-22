@@ -45,7 +45,6 @@ function Base.parse(env::MarbleEnv)
     if "analysis" in keys(env.settings)
         try
             exec =  map(split(env.settings["analysiscmd"], ' ')) do command
-                println(command)
                 if command == "\$filename"
                     return env.settings["analysis"]
                 else
@@ -134,11 +133,13 @@ function build(env::MarbleEnv)
     open(texfile, "w") do f
         write(f, env.final)
     end
-
-    try
-        run(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`)
-        println("DONE")
-    catch y
-        println("BUILD FAILED")
+    
+    if env.settings["topdf"]
+        try
+            run(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`)
+            println("DONE")
+        catch y
+            println("BUILD FAILED")
+        end
     end
 end
