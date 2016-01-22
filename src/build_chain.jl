@@ -73,7 +73,7 @@ function Base.parse(env::MarbleEnv)
 end
 
 """
-Takes and manipulates the freshly parsed Tree"
+Takes and manipulates the freshly parsed Tree
 """
 function process(env::MarbleEnv)
     if env.settings["debug"]
