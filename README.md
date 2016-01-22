@@ -1,6 +1,6 @@
 # Marble
 
-[![Build Status](https://travis-ci.org/dustinrb/Marble.jl.svg?branch=master)](https://travis-ci.org/dustinrb/Marble.jl)
+<!--[![Build Status](https://travis-ci.org/dustinrb/Marble.jl.svg?branch=master)](https://travis-ci.org/dustinrb/Marble.jl)-->
 
 Marble is yet another academic Markdown flavor. It emphasizes an easy transition from Markdown to Latex. Consequently, it currently cannot convert files into HTML. So, what does Marble offer:
 
