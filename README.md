@@ -55,10 +55,10 @@ Now, from the Julia REPL, install Marble and its dependancies. Please note that 
 
 ```julia
 # Install dependancies
-Pkg.clone("https://github.com/dustinrb/JinjaTemplates.jl.git")
-Pkg.clone("https://github.com/dustinrb/SettingsBundles.jl.git")
+Pkg.clone("https://gitlab.com/dustinrb/JinjaTemplates.jl.git")
+Pkg.clone("https://gitlab.com/dustinrb/SettingsBundles.jl.git")
 # Install Marble
-Pkg.clone("https://github.com/dustinrb/Marble.jl.git")
+Pkg.clone("https://gitlab.com/dustinrb/Marble.jl.git")
 ```
 
 Finally, link the Marble CLI to your /usr/loca/bin directory
