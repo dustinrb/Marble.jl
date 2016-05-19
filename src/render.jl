@@ -100,7 +100,7 @@ function jinja(env, md::Marble.Equation)
 end
 
 function jinja(env, md::Marble.Tex)
-    return return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
         settings=env.scratch[:settings_cache],
         content=md.content)
 end
@@ -118,10 +118,22 @@ function jinja(env, md::Marble.InlineUnit)
 end
 
 function jinja(env, md::Marble.InlineData)
-    text = fmt(md.format, env.scratch[:analysis][md.text])
+    text = format(md.format, env.scratch[:analysis][md.text])
     return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
         settings=env.scratch[:settings_cache],
         text=text,
         format=md.format,
         original=md.text)
+end
+
+function jinja(env, md::Marble.InlineMath)
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
+        text=md.text)
+end
+
+function jinja(env, md::Marble.InlineTex)
+    return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
+        settings=env.scratch[:settings_cache],
+        text=md.text)
 end

@@ -13,6 +13,8 @@ function main()
         make(pwd())
     elseif ARGS[1] == "init" && length(ARGS) == 2
         init_project(ARGS[2])
+    elseif ARGS[1] == "maketex"
+        make_tex(pwd())
     end
 end
 

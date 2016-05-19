@@ -12,6 +12,7 @@
 \usepackage{siunitx}
 \usepackage{booktabs}
 \usepackage{csquotes}
+\usepackage[section]{placeins}
 \usepackage[perpage,symbol]{footmisc}
 <% block packages_extra %><% endblock %>
 <% endblock %>
@@ -36,6 +37,7 @@
 
 % Begin the actual document
 \begin{document}
+<% block content__before %><% endblock %>
 % Front matter
 <% block content %>
 <% if settings.title %>\maketitle<% endif %>
@@ -47,5 +49,7 @@
 
 % Bibliography
 \printbibliography
+
 <% endblock %>
+<% block content__after %><% endblock %>
 \end{document}

@@ -15,3 +15,6 @@ function mkjinjaenv(env::MarbleEnv)
         keep_trailing_newline=true
     )
 end
+
+""" Gets a proper basename for the environment """
+get_basename(env) = env.settings["maindoc"][1:findlast(env.settings["maindoc"], '.') - 1]

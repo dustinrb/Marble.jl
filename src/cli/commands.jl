@@ -1,20 +1,7 @@
 "Given a directory, watches for changes to the main document and rebuilds
 the whole project when it's saved"
 function make(path)
-
-    println("Loading settings... ") # LOGGING
-    dirname = split(path, '/')[end]
-    env = MarbleEnv(
-        load_conf_file!("$(Pkg.dir("Marble"))/src/defaults.yaml"), # Defaults
-        load_conf_file!("$(ENV["HOME"])/.mrbl/settings.yaml"), # User settings
-        Dict(
-            "workdir" => path,
-            "dirname" => dirname,
-            "maindoc" => "$dirname.md",
-        ),
-        load_conf_file!("$path/settings.yaml") # Project Settings
-    )
-    # Now that we've bootstraped ourselves, let's get going
+    env = get_env(path)
     println("Building... ") # LOGGIN
     run_build_loop(env)
 
@@ -30,6 +17,13 @@ function make(path)
             end
         end
     end
+end
+
+"Runs build phase without parsing markdown to latex"
+function make_tex(path)
+    env = get_env(path)
+    println("Building TeX file... ") # LOGGIN
+    build(env)
 end
 
 "Creates a new MD project in a specified directory. Also runs git init."

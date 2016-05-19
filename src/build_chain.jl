@@ -3,9 +3,11 @@ Acts as a store for build information. Passed around to the important setps
 """
 type MarbleEnv
     settings::SettingsBundle
+    # docs::Array{MarbleDoc}
     tree::Markdown.MD # Parsed markdown tree
     content::AbstractString # Rendered markdown tree w/o templating
     final::AbstractString # Final document, ready for handoff to another processor
+
     is_built::Bool # Did the other processor successfully exicute
     templates::LazyTemplateLoader # Templateing environment
     scratch # Place for individual elements to store and share data while rendering
@@ -31,6 +33,10 @@ type MarbleEnv
         this.scratch = Dict()
         return this
     end
+end
+
+type MarbleDoc
+
 end
 
 """
@@ -116,6 +122,11 @@ function template(env::MarbleEnv)
         content=env.content
     )
 
+    # Write to file
+    texfile = "$(get_basename(env)).tex"
+    open(texfile, "w") do f
+        write(f, env.final)
+    end
     # show(env.final)
 end
 
@@ -127,13 +138,8 @@ function build(env::MarbleEnv)
         println("BUILDING") # LOGGING
     end
 
-    basename = env.settings["maindoc"][1:findlast(env.settings["maindoc"], '.') - 1]
-
+    basename = get_basename(env)
     texfile = "$basename.tex"
-    open(texfile, "w") do f
-        write(f, env.final)
-    end
-    
     if env.settings["topdf"]
         try
             run(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`)

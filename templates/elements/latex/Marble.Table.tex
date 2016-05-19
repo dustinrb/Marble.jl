@@ -1,6 +1,6 @@
-\begin{table}[h]
-    \label{<|name|>}
+\begin{table}[bp!]
     \caption{<|caption|>}
+    \centering
     \begin{tabular}{<% for h in alignment %><% if h == "right" %>r<% elif h == "left" %>l<% elif h == "decimal" %>S<% else %>c<% endif %><% endfor %>}
         \toprule
         <% for header in headers %>{<|header|>} <%if not loop.last%>& <%endif%><% endfor %> \\
@@ -9,5 +9,5 @@
         <% endfor %>
         \bottomrule
     \end{tabular}
-    \centering
+    \label{<|name|>}
 \end{table}

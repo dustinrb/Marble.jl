@@ -6,7 +6,7 @@ topdf: true
 fontsize: 11pt
 papersize: letterpaper
 toc: false
-imagewidth: 4in
+imagewidth: false
 analysiscmd: julia $filename
 
 # Template Engine settings (Jinja)

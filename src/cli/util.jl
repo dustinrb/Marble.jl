@@ -17,6 +17,26 @@ function load_conf_file!(path)
 end
 
 """
+Constructs a MarbleEnv based on current path and settings files
+"""
+function get_env(path)
+    println("Loading settings... ") # LOGGING
+    dirname = split(path, '/')[end]
+    env = MarbleEnv(
+        load_conf_file!("$(Pkg.dir("Marble"))/src/defaults.yaml"), # Defaults
+        load_conf_file!("$(ENV["HOME"])/.mrbl/settings.yaml"), # User settings
+        Dict(
+            "workdir" => path,
+            "dirname" => dirname,
+            "maindoc" => "$dirname.md",
+        ),
+        load_conf_file!("$path/settings.yaml") # Project Settings
+    )
+
+    return env
+end
+
+"""
 Builds a document given a specified Marble object
 """
 function run_build_loop(env::MarbleEnv)

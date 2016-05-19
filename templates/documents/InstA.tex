@@ -1,0 +1,32 @@
+<% extends "documents/base.tex" %>
+
+<% block packages_extra %>
+\usepackage{indentfirst}
+<% endblock %>
+
+<% block packageconf_extra %>
+\doublespacing
+% \raggedright
+\setlength{\parindent}{1.27cm}
+<% endblock %>
+
+<% block docconf %>
+<% if settings.title %>\title{<|settings.title|>}<% endif %>
+<% if settings.authors %>\author{<% for author in settings.authors %><% if author.ismain %>\underline{<| author.name |>}<% else %><| author.name |><% endif %><%if not loop.last%> \and <%endif%><% endfor %>}<% endif %>
+\date{<|settings.date|>}
+<% if settings.citationfile %>\addbibresource{<|settings.citationfile|>}<% endif %>
+<% endblock %>
+
+<% block content %>
+<% if settings.title %>\maketitle<% endif %>
+\pagebreak
+<% if abstract %>\begin{abstract}<|abstract|>\end{abstract}<% endif %>
+<% if settings.toc %>\tableofcontents<% endif %>
+
+% The Content
+<|content|>
+
+% Bibliography
+\printbibliography
+
+<% endblock %>

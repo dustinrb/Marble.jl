@@ -1,0 +1,19 @@
+<% extends "documents/base.tex" %>
+
+<% block packages_extra %>
+\usepackage{multicol}
+\setlength{\columnsep}{1cm}
+<% endblock %>
+
+<% block content %>
+<% if settings.title %>\maketitle<% endif %>
+<% if abstract %>\begin{abstract}<|abstract|>\end{abstract}<% endif %>
+<% if settings.toc %>\tableofcontents<% endif %>
+\begin{multicols}{2}
+% The Content
+<|content|>
+
+% Bibliography
+\printbibliography
+\end{multicols}
+<% endblock %>
