@@ -141,6 +141,7 @@ end
 type Tex
     content
 
+    Tex(s::AbstractString) = new(s)
     function Tex(stream::IO, md::Markdown.MD)
         data=readall(stream)
         push!(md, new(data))

@@ -9,6 +9,14 @@ toc: false
 imagewidth: false
 analysiscmd: julia $filename
 
+collect_tables: false
+tables_header: Tables
+
+collect_figures: false
+figures_header: Figures
+
+references_header: References
+
 # Template Engine settings (Jinja)
 maindoc: document.md
 template: draft

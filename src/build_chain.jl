@@ -86,15 +86,52 @@ function process(env::MarbleEnv)
     end
 
     # Make any Document tags part of the ENV
-    for i in 1:length(env.tree.content)
-        n = length(env.tree.content) + 1 - i
-        if isa(env.tree.content[n], Document)
-            add!(env.settings, env.tree.content[n].data)
+    walk(env) do e, c, env
+        if isa(e, Document)
+            add!(env.settings, env.tree.content[c[1]].data)
         end
     end
 
+    #=
+    I don't like this implementation. I would prefere something more like
+
+    # References
+
+    {references}
+
+    where the header does not have any magic meaning
+    =#
+    ref_ind = 0
+    addrefs = false
+    walk(env) do e, c, env
+        if isa(e, Markdown.Header) &&
+            strip(e.text[1]) == env.settings["references_header"]
+            ref_ind = c[1]
+            addrefs = true
+        end
+    end
+    # replace header with actual element
+    deleteat!(env.tree.content, ref_ind)
+    insert!(env.tree.content, ref_ind, Tex("\\printbibliography\n"))
+
     # probably side load the processors, e.g. for processor in processors...
     # skip
+end
+
+"""
+Needs to add support for inlines and nested block elements
+NEEDS TO MAKE A COPY OF THE TREE, OR ELSE WALKING GETS WIERD
+
+f should accept e, c, env::MarbleEnv
+e → The element itself
+c → The coordinates for this element (array of indicies)
+env → The tree itself
+"""
+function walk(f::Function, env::MarbleEnv)
+    for i in 1:length(env.tree.content)
+        n = length(env.tree.content) + 1 - i
+        f(env.tree.content[n], (n,), env)
+    end
 end
 
 """
@@ -142,10 +179,11 @@ function build(env::MarbleEnv)
     texfile = "$basename.tex"
     if env.settings["topdf"]
         try
-            run(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`)
+            run(pipeline(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`; stdout="log.txt", stderr="err.txt"))
             println("DONE")
         catch y
             println("BUILD FAILED")
+            println("See err.txt for details.")
         end
     end
 end
