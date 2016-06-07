@@ -47,6 +47,7 @@ function Base.parse(env::MarbleEnv)
         println("PARSING") # LOGGING
     end
 
+
     # Execute the analysis script. This will give it a chance to create any CSVs
     if "analysis" in keys(env.settings)
         try
@@ -179,11 +180,12 @@ function build(env::MarbleEnv)
     texfile = "$basename.tex"
     if env.settings["topdf"]
         try
-            run(pipeline(`latexmk -xelatex -shell-escape -jobname=build/$basename $texfile`; stdout="log.txt", stderr="err.txt"))
+            # run(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`)
+            run(pipeline(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`; stdout="/dev/null", stderr="/dev/null"))
             println("DONE")
         catch y
             println("BUILD FAILED")
-            println("See err.txt for details.")
+            println("See build/$basename.log for details.")
         end
     end
 end
