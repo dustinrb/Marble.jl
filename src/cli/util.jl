@@ -42,10 +42,21 @@ Builds a document given a specified Marble object
 function run_build_loop(env::MarbleEnv)
     # Maybe in the future, allow for drop in replacements based on
     # the evironment. For now, just run the standard loop.
-    parse(env)
-    process(env)
-    render(env)
-    template(env)
+    main_path = "$(env.settings["workdir"])/$(env.settings["maindoc"])"
+    analysis_path = "$(env.settings["workdir"])/$(env.settings["analysis"])"
+
+    if changed(env.cache, main_path) | changed(env.cache, analysis_path)
+        parse(env)
+        process(env)
+        render(env)
+        template(env)
+
+        # Only caching main_path because caching for analysis_path occures in parse(env)
+        cache(env.cache, main_path)
+        save(env.cache)
+    else
+        println("No changes detected. Using existing .tex file")
+    end
     build(env)
 end
 

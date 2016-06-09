@@ -8,12 +8,12 @@ type MarbleEnv
     content::AbstractString # Rendered markdown tree w/o templating
     final::AbstractString # Final document, ready for handoff to another processor
 
-    is_built::Bool # Did the other processor successfully exicute
+    cache::Cache # Storage of cached files
     templates::LazyTemplateLoader # Templateing environment
     scratch # Place for individual elements to store and share data while rendering
 
     function MarbleEnv(settings_sources...)
-        this = new(SettingsBundle(settings_sources...), Markdown.MD(), "", "", false)
+        this = new(SettingsBundle(settings_sources...), Markdown.MD(), "", "", Cache("mrbl/cache_list.json"))
 
         this.templates = LazyTemplateLoader([
                 this.settings["templatedir"],
@@ -50,20 +50,35 @@ function Base.parse(env::MarbleEnv)
 
     # Execute the analysis script. This will give it a chance to create any CSVs
     if "analysis" in keys(env.settings)
-        try
+        a_file = env.settings["analysis"]
+
+        # Use cached settings if analysis.jl is up to date
+        if changed(env.cache, a_file)
+            # Get the executable command
             exec =  map(split(env.settings["analysiscmd"], ' ')) do command
                 if command == "\$filename"
-                    return env.settings["analysis"]
+                    return a_file
                 else
                     return command
                 end
             end
-            env.scratch[:analysis] = JSON.parse(readall(`$exec`))
-        catch y
-            # throw(y)
-            env.scratch[:analysis] = Dict()
-            warn("Analysis script `$(env.settings["analysis"])` failed to run.")
-            println(y)
+
+            try
+                env.scratch[:analysis] = JSON.parse(readall(`$exec`))
+                open(f->JSON.print(f, env.scratch[:analysis]),
+                    "mrbl/cache/analysis.json",
+                    "w")
+            catch y
+                # throw(y)
+                env.scratch[:analysis] = Dict()
+                warn("Analysis script `$(env.settings["analysis"])` failed to run.")
+                println(y)
+            end
+            cache(env.cache, a_file)
+            save(env.cache)
+        else
+            println("Using cached analysis file")
+            env.scratch[:analysis] = JSON.parsefile("mrbl/cache/analysis.json")
         end
     end
 
@@ -74,8 +89,6 @@ function Base.parse(env::MarbleEnv)
     end
 
     env.tree = Markdown.parse_file(path, flavor=:mrbl)
-
-    # show(env.tree)
 end
 
 """
@@ -181,10 +194,10 @@ function build(env::MarbleEnv)
     if env.settings["topdf"]
         try
             # run(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`)
-            run(pipeline(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`; stdout="/dev/null", stderr="/dev/null"))
+            run(pipeline(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`; stdout=DevNull, stderr=DevNull))
             println("DONE")
         catch y
-            println("BUILD FAILED")
+            print_with_color(:red, "BUILD FAILED: ")
             println("See build/$basename.log for details.")
         end
     end
