@@ -8,7 +8,7 @@ Marble is yet another academic Markdown flavor. It emphasizes an easy transition
 2. First class support for [figures](#figure), [tables](#table), [equations](#equation), and [analysis script output](#data)
 3. Readable Latex output
 
-**NOTE:** Marble is currently a proof of concept. Installation and error handling are currently not as smooth as they should be, and Marble has not yet been submitted to the official Julia package index due to lack of testing. Please open an issue on github if you encounter any problems.
+**NOTE:** Marble is currently a proof of concept. Installation and error handling are currently not as smooth as they should be, and Marble has not yet been submitted to the official Julia package index due to lack of testing. Please open an issue if you encounter any problems.
 
 ## Installation
 
@@ -55,10 +55,10 @@ Now, from the Julia REPL, install Marble and its dependancies. Please note that 
 
 ```julia
 # Install dependancies
-Pkg.clone("https://github.com/dustinrb/JinjaTemplates.jl.git")
-Pkg.clone("https://github.com/dustinrb/SettingsBundles.jl.git")
+Pkg.clone("https://gitlab.com/dustinrb/JinjaTemplates.jl.git")
+Pkg.clone("https://gitlab.com/dustinrb/SettingsBundles.jl.git")
 # Install Marble
-Pkg.clone("https://github.com/dustinrb/Marble.jl.git")
+Pkg.clone("https://gitlab.com/dustinrb/Marble.jl.git")
 ```
 
 Finally, link the Marble CLI to your /usr/loca/bin directory
