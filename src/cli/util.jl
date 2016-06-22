@@ -20,6 +20,8 @@ end
 Constructs a MarbleEnv based on current path and settings files
 """
 function get_env(path)
+    prepair()
+
     println("Loading settings... ") # LOGGING
     dirname = split(path, '/')[end]
     env = MarbleEnv(

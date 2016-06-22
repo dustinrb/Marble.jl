@@ -40,6 +40,30 @@ type MarbleDoc
 end
 
 """
+Prepairs the folder for Marble. Includes steps such as creating directories, or clearing cache data
+"""
+function prepair()
+    # Create directories
+    for folder in (
+        "mrbl/build",
+        "mrbl/cache",
+        "mrbl/log",
+        "mrbl/templates",)
+        if !isdir(folder)
+            mkpath(folder)
+        end
+    end
+
+    # Create delinquent files
+    for file in (
+        "settings.yaml",)
+        if !isfile(file)
+            open(o->write(o, ""), file, "w")
+        end
+    end
+end
+
+"""
 Takes in a MarbleEnv and parses the Markdown in the primary_file setting
 """
 function Base.parse(env::MarbleEnv)
@@ -193,12 +217,12 @@ function build(env::MarbleEnv)
     texfile = "$basename.tex"
     if env.settings["topdf"]
         try
-            # run(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`)
-            run(pipeline(`latexmk -xelatex -shell-escape -halt-on-error -jobname=build/$basename $texfile`; stdout=DevNull, stderr=DevNull))
+            run(pipeline(`latexmk -xelatex -shell-escape -halt-on-error -jobname=mrbl/build/$basename $texfile`; stdout=DevNull, stderr=DevNull))
             println("DONE")
         catch y
             print_with_color(:red, "BUILD FAILED: ")
-            println("See build/$basename.log for details.")
+            println("See mrbl/build/$basename.log for details.")
+            return
         end
     end
 end

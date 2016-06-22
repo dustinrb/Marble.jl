@@ -9,7 +9,7 @@
 Entry for our caching table.
 """
 type Cache
-    cachepath # Path to file where cache data is stored
+    cachepath::AbstractString # Path to file where cache data is stored
     lookup::Dict{UTF8String, ASCIIString}
     function Cache(fname)
         fpath = abspath(fname)
@@ -38,7 +38,7 @@ cache(c::Cache, f) = c[f] = open(sha1, f)
 function cache!(c::Cache, f)
     shasum = cache(c, f)
     save(c)
-    return shashum
+    return shasum
 end
 
 "Saves cache database to file"

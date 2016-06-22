@@ -4,7 +4,7 @@ export
     # Types
     MarbleEnv,
     # Functions
-    parse, process, render, template, build, changed, cache, save
+    prepair, parse, process, render, template, build, changed, cache, save
 
 # Markdown becoming Latex
 using SettingsBundles
