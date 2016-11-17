@@ -76,6 +76,7 @@ end
 # Trigger is (
 """ Parses inline tages of the form (key text) """
 function interpreted_inline(stream::IO, md::Markdown.MD)
+    # Memory allocation every time function is run
     tags = Dict(
         "math" => InlineMath,
         "tex" => InlineTex,
@@ -94,8 +95,11 @@ function interpreted_inline(stream::IO, md::Markdown.MD)
             break
         end
     end
-    id = Markdown.readuntil(stream, ']', match = '[')
+
+    if isempty(inline_key)
+        return nothing
+    end
 
     text = Markdown.readuntil(stream, ')', match='(')
-     text === nothing ? nothing : tags[inline_key](text, md)
+    return text === nothing ? nothing : tags[inline_key](text, md)
 end

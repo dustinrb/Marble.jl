@@ -143,7 +143,7 @@ type Tex
 
     Tex(s::AbstractString) = new(s)
     function Tex(stream::IO, md::Markdown.MD)
-        data=readall(stream)
+        data=readstring(stream)
         push!(md, new(data))
     end
 end

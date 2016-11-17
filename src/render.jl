@@ -6,11 +6,14 @@ function jinja(env, md::Markdown.MD)
     for element in md.content
         println(stream, jinja(env, element))
     end
-    text = readall(seek(stream, 0))
+    text = readstring(seek(stream, 0))
     return text
 end
 
-jinja(env, md::AbstractString) = Markdown.latexesc(md)
+function jinja(env, md::String)
+    # println("ESCAPING ", md, " to ", Markdown.latexesc(md))
+    latexesc(md)
+end
 jinja(env, md::Number) = string(md)
 jinja(env, md::Array) = join([jinja(env, i) for i in md], "")
 
@@ -143,3 +146,17 @@ function jinja(env, md::Marble.InlineTex)
         settings=env.scratch[:settings_cache],
         text=md.text)
 end
+
+##################### SUPPORT FUNCTIONS #######################
+const _latexescape_chars = Dict{Char, AbstractString}(
+   '~'=>"{\\textasciitilde}", '^'=>"{\\textasciicircum}", '\\'=>"{\\textbackslash}")
+for ch in "&%\$#_{}"
+    _latexescape_chars[ch] = "\\$ch"
+end
+
+function latexesc(io, s::String)
+    for ch in s
+        print(io, get(_latexescape_chars, ch, ch))
+    end
+end
+latexesc(s::String) = sprint(latexesc, s)

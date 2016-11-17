@@ -1,24 +1,33 @@
 module Marble
+# Markdown becoming Latex
 
 export
     # Types
     MarbleEnv,
-    # Functions
-    prepair, parse, process, render, template, build, changed, cache, save
+    # Document prep functions
+    prepair, parse, process, render, template, build, changed, cache, save,
+    # General use functions
+    build_stream, build_file, build_dir, init_dir, print_settings
 
-# Markdown becoming Latex
-using SettingsBundles
-using JinjaTemplates
+# External Packages
 using Formatting
+using FileState
+using JinjaTemplates
+using JSON
+using SettingsBundles
 using SHA
 using YAML
-using JSON
 
-include("cacheing.jl") # Maintains a list of active documents
-include("build_chain.jl") # Main application logic
+# Internal Modules
+# include("flavor/Marble_MD.jl")
+# using MarbleFlavor
+
+include("MarbleDoc.jl")
+include("MarbleEnv.jl")
 include("flavor/Marble_MD.jl") # Custom MD flavor
-include("render.jl") # Wrpper around Jinja2
+include("render.jl") # Wrapper around Jinja2
 include("util.jl") # Utility functions
+include("buildchain.jl") # Main application logic
 
 end # module
 

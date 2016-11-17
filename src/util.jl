@@ -1,20 +1,30 @@
-"""Creates a Jinja2 ENV based on the settings ENV"""
-function mkjinjaenv(env::MarbleEnv)
-    return jinja2.Environment(
-        loader=jinja2.FileSystemLoader([
-            env.settings["templatedir"],
-            "$(ENV["HOME"])/.mrbl/templates",
-            "$(Pkg.dir("Marble"))/templates"
-        ]),
-        block_start_string=env.settings["JINJA_block_start_string"],
-        block_end_string=env.settings["JINJA_block_end_string"],
-        variable_start_string=env.settings["JINJA_variable_start_string"],
-        variable_end_string=env.settings["JINJA_variable_end_string"],
-        comment_start_string=env.settings["JINJA_comment_start_string"],
-        comment_end_string=env.settings["JINJA_comment_end_string"],
-        keep_trailing_newline=true
-    )
+"""
+Takes a given filename and returns its extension
+"""
+function extension(path)
+    return split(path, '.')[end]
 end
 
-""" Gets a proper basename for the environment """
-get_basename(env) = env.settings["maindoc"][1:findlast(env.settings["maindoc"], '.') - 1]
+
+"""
+gives the .mrbl dir
+"""
+mrbldir() = "$(ENV["HOME"])/.mrbl"
+mrbldir(path) = "$(mrbldir())/$path"
+
+
+"""
+Runs code snippets within the specified directory.
+Due to the changeing directories, beware of relatvie paths
+"""
+function runindir(f::Function, path)
+    curdir = pwd()
+    cd(path)
+    output = nothing
+    try
+        output = f()
+    finally
+        cd(curdir)
+    end
+    return output
+end

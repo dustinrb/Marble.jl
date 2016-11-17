@@ -1,4 +1,4 @@
-\begin{<% if ordered %>enumerate<% else %>itemize<% endif %>}
+\begin{<% if ordered > -1 %>enumerate<% else %>itemize<% endif %>}
 <% for item in items %>\item <|item|>
 <% endfor %>
-\end{<% if ordered %>enumerate<% else %>itemize<% endif %>}
+\end{<% if ordered > -1 %>enumerate<% else %>itemize<% endif %>}
