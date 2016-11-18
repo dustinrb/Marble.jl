@@ -21,6 +21,7 @@ Marble.runindir(builddir) do
     run(command)
 end
 
+# Build File
 using Marble
 reload("Marble")
 file_path = Pkg.dir("Marble") * "/test/docs/test.md"
@@ -29,8 +30,16 @@ cd("/Users/dustinrb/Desktop/")
 build_path = Marble.get_build_dir(file_path)
 run(`open $build_path`)
 Marble.clean_tex(file_path)
-Marble.build_file(file_path)
+reload("Marble")
+Marble.build_file(fpath, out="/Users/dustinrb/Desktop/test.pdf")
+Marble.build_file(file_path, out="/Users/dustinrb/Desktop/test2.pdf")
 pwd()
+
+# Init Document
+using Marble
+reload("Marble")
+init_dir("/Users/dustinrb/Desktop/testdoc$(rand())")
+
 
 run(`open $(pwd())`)
 run(`open $path`)

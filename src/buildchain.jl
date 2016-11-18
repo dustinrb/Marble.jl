@@ -1,25 +1,33 @@
 """
-Builds document with Marble
+Simplification of MarbleDoc constructor
 """
-function build(contents, path, docname; build::Bool=true, cache=nothing)
-
+function get_doc(contents, path, docname; cache=nothing)
     # Configure the build env
     settings = get_settings(path)
     create_paths(settings)
     cache = cache == nothing ? States("$(settings["paths"]["cache"])/hashes.json") : cache
 
-    doc = Marble.MarbleDoc(
+    return Marble.MarbleDoc(
         docname,
         contents,
         cache,
         settings)
+end
+
+
+"""
+Builds document with Marble
+"""
+function build(contents, path, docname; build::Bool=true, cache=nothing)
+
+    doc = get_doc(contents, path, docname; cache=cache)
 
     # Build the document
     Marble.parse(doc)
     Marble.process(doc)
     Marble.render(doc)
     Marble.template(doc)
-    build ? Marble.build(doc) : nothing
+    build && Marble.build(doc)
 
     return doc
 end
@@ -30,13 +38,13 @@ Given a directory, compiles all documents under the documents settings
 """
 function build_dir(path)
     settings = get_settings(path)
-    cache =
-    doc = Marble.MarbleDoc(
-        "stream",
-        readstring("$(Pkg.dir("Marble"))//test/docs/test.md"),
-        cache,
-        settings)
-    # Start building this
+    cache
+
+    # Check to see if both .md and .tex file is changed
+    # Backup changes
+
+    # Compile .tex if new .md
+    # Compile .pdf if new .tex (and target is pdf)
 end
 
 
@@ -82,7 +90,17 @@ end
 """
 Given a path, creates a Marble compatable directory
 """
-function init_dir(path)
+function init_dir(path; template="")
+    ispath(path) && error("Path `$path` is an existing directory.")
+
+    settings = get_settings(path)
+    create_paths(settings)
+
+    if !isempty(template) && in(template, readdir(mrbldir("project_templates")))
+
+    else
+        touch(joinpath(path, "$project_name.md"))
+    end
 end
 
 
@@ -141,7 +159,6 @@ function get_paths(path)
         "log" => "$env/log",
         "backup" => "$env/backup",
         "template" => "$env/templates",
-        "home" => "$(ENV["HOME"])/.mrbl",
     )
 end
 
@@ -173,22 +190,31 @@ function create_paths(settings)
 
     # Create delinquent files
     for file in (
-        "$(settings["paths"]["base"])/settings.yaml",
-        "$(ENV["HOME"])/.mrbl/settings.yaml",)
+        "$(settings["paths"]["base"])/settings.yaml",) #Maybe this list will grow
         if !isfile(file)
             touch(file)
         end
     end
+
+    mk_mrbl_dir()
 end
 
 
 """
-Takes a MarbleDoc through all the necessary steps to create a document
+Create .mrbl directory
 """
-# function build(env::MarbleDoc)
-#     parse(env)
-#     process(env)
-#     render(env)
-#     template(env)
-#     build(env)
-# end
+function mk_mrbl_dir()
+        create_or_ignore.([
+            mrbldir(),
+            mrbldir("project_templates"),
+            mrbldir("files"),
+            mrbldir("streams"),
+            mrbldir("templates")
+        ])
+end
+
+
+"""
+Creates the mrbl dir (if it need to be build)
+"""
+create_or_ignore(m) = !isdir(m) && !isfile(m) && mkpath(m)

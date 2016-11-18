@@ -42,6 +42,21 @@ type MarbleDoc
     end
 end
 
+"""
+Simplification of MarbleDoc constructor
+"""
+function Marble.MarbleDoc(contents, path, docname; cache=nothing)
+    # Configure the build env
+    settings = get_settings(path)
+    create_paths(settings)
+    cache = cache == nothing ? States("$(settings["paths"]["cache"])/hashes.json") : cache
+
+    return Marble.MarbleDoc(
+        docname,
+        contents,
+        cache,
+        settings)
+end
 
 ############## The Main Build Process ##############
 

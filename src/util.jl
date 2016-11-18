@@ -9,7 +9,13 @@ end
 """
 gives the .mrbl dir
 """
-mrbldir() = "$(ENV["HOME"])/.mrbl"
+function mrbldir()
+    if "MARBLE_HOME" ∈ keys(ENV) # Would rather use get_key, but it doesnt work with ENV
+        return "$(ENV["MARBLE_HOME"])/.mrbl"
+    else
+        return "$(ENV["HOME"])/.mrbl"
+    end
+end
 mrbldir(path) = "$(mrbldir())/$path"
 
 
