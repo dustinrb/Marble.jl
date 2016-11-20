@@ -99,8 +99,8 @@ function init_dir(path; template="", project_name="")
 
     create_paths(settings)
 
-    if !isempty(template) &&
-        if template in readdir(p_templates)
+    if !isempty(template) 
+        if in(template, readdir(p_templates))
             for f in readdir(joinpath(p_templates, template))
                 cp(joinpath(p_templates, template, f),
                     joinpath(path, f);
