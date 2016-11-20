@@ -90,16 +90,27 @@ end
 """
 Given a path, creates a Marble compatable directory
 """
-function init_dir(path; template="")
+function init_dir(path; template="", project_name="")
     ispath(path) && error("Path `$path` is an existing directory.")
 
     settings = get_settings(path)
+    project_name = isempty(project_name) ? split(settings["paths"]["base"], '/')[end] : project_name
+    p_templates = mrbldir("project_templates")
+
     create_paths(settings)
 
-    if !isempty(template) && in(template, readdir(mrbldir("project_templates")))
-
+    if !isempty(template) &&
+        if template in readdir(p_templates)
+            for f in readdir(joinpath(p_templates, template))
+                cp(joinpath(p_templates, template, f),
+                    joinpath(path, f);
+                    remove_destination=true)
+            end
+        else
+            error("Project template `$template` not found in $(mrbldir("project_templates"))")
+        end
     else
-        touch(joinpath(path, "$project_name.md"))
+        touch(joinpath(path, "$(get).md"))
     end
 end
 

@@ -9,7 +9,7 @@ paths:
     home: /tmp/.mrbl
 workdir: ""
 watch: false
-debug: true
+debug: false
 topdf: true
 texcmd: xelatex
 
