@@ -10,13 +10,13 @@ end
 gives the .mrbl dir
 """
 function mrbldir()
-    if "MARBLE_HOME" ∈ keys(ENV) # Would rather use get_key, but it doesnt work with ENV
-        return "$(ENV["MARBLE_HOME"])/.mrbl"
+    if "MARBLE_HOME" ∈ keys(ENV) # Would rather use `get_key`, but it doesnt work with ENV
+        return "$(ENV["MARBLE_HOME"])"
     else
         return "$(ENV["HOME"])/.mrbl"
     end
 end
-mrbldir(path) = "$(mrbldir())/$path"
+mrbldir(path...) = joinpath(mrbldir(), path...)
 
 
 """

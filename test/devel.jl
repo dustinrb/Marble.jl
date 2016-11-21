@@ -33,8 +33,6 @@ Marble.clean_tex(file_path)
 reload("Marble")
 Marble.build_file(fpath, out="/Users/dustinrb/Desktop/test.pdf")
 Marble.build_file(file_path, out="/Users/dustinrb/Desktop/test2.pdf")
-pwd(433)
-Dict(:a => 1, :b => 2)
 
 using Plots
 pyplot()
@@ -44,7 +42,7 @@ plot(rand(5), rand(5))
 using Marble
 reload("Marble")
 Marble.init_dir("/Users/dustinrb/Desktop/testdoc_$(randstring(3))")
-Marble.init_dir("/Users/dustinrb/Desktop/testdoc_$(randstring(3))"; template="test") 
+Marble.init_dir("/Users/dustinrb/Desktop/testdoc_$(randstring(3))"; template="test")
 Marble.init_dir("/Users/dustinrb/Desktop/testdoc_$(randstring(3))"; template="fail")
 
 

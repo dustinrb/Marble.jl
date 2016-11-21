@@ -38,13 +38,9 @@ Given a directory, compiles all documents under the documents settings
 """
 function build_dir(path)
     settings = get_settings(path)
-    cache
+    cache = States("$(settings["paths"]["cache"])/hashes.json")
 
-    # Check to see if both .md and .tex file is changed
-    # Backup changes
-
-    # Compile .tex if new .md
-    # Compile .pdf if new .tex (and target is pdf)
+    files = filter(x->ismarkdown(x, settings), readdir(path))
 end
 
 
@@ -95,23 +91,39 @@ function init_dir(path; template="", project_name="")
 
     settings = get_settings(path)
     project_name = isempty(project_name) ? split(settings["paths"]["base"], '/')[end] : project_name
-    p_templates = mrbldir("project_templates")
 
     create_paths(settings)
+    cp_template(
+        isempty(template) ? settings["default_template"] : template,
+        path)
+end
 
-    if !isempty(template) 
-        if in(template, readdir(p_templates))
-            for f in readdir(joinpath(p_templates, template))
-                cp(joinpath(p_templates, template, f),
-                    joinpath(path, f);
-                    remove_destination=true)
-            end
-        else
-            error("Project template `$template` not found in $(mrbldir("project_templates"))")
+
+"""
+Copies a project template to `path`
+"""
+function cp_template(template, path)
+    p_templates = mrbldir("project_templates")
+    if in(template, readdir(p_templates))
+        for f in readdir(joinpath(p_templates, template))
+            cp(joinpath(p_templates, template, f),
+                joinpath(path, f);
+                remove_destination=true)
         end
     else
-        touch(joinpath(path, "$(get).md"))
+        error("Project template `$template` not found in $(mrbldir("project_templates"))")
     end
+end
+
+
+"""
+Takes a MRBL file/folder and clears out the mrbl/build dir for a clean build
+TODO: Should make env cleanable. For now, just clean out the directory
+"""
+function clean_tex(path)
+    p = joinpath(get_build_dir(path), "mrbl", "build")
+    rm(p, force=true, recursive=true)
+    mkpath(p)
 end
 
 
@@ -119,7 +131,7 @@ end
 Create a settings environment
 """
 function get_settings(path; runtime_settings=Dict())
-    println("Loading settings... ") # LOGGING
+    # println("Loading settings... ") # LOGGING
     s = SettingsBundle()
     load_conf_file!(s, "$(Pkg.dir("Marble"))/defaults.yaml") # Defaults
     load_conf_file!(s, "$(ENV["HOME"])/.mrbl/settings.yaml") # User settings
@@ -138,22 +150,11 @@ to be an actual directory
 function get_build_dir(path)
     if isfile(path)
         return mrbldir("files/$(bytes2hex(sha1(abspath(path))))")
-    elseif ispath(path)
+    elseif isdir(path)
         return abspath(path) # Need to check if this is a valid file
     else
         return nothing
     end
-end
-
-
-"""
-Takes a MRBL file/folder and clears out the mrbl/build dir for a clean build
-TODO: Should make env cleanable. For now, just clean out the directory
-"""
-function clean_tex(path)
-    p = joinpath(get_build_dir(path), "mrbl", "build")
-    rm(p, force=true, recursive=true)
-    mkpath(p)
 end
 
 
@@ -218,6 +219,7 @@ function mk_mrbl_dir()
         create_or_ignore.([
             mrbldir(),
             mrbldir("project_templates"),
+            mrbldir("project_templates", "default"),
             mrbldir("files"),
             mrbldir("streams"),
             mrbldir("templates")
@@ -229,3 +231,15 @@ end
 Creates the mrbl dir (if it need to be build)
 """
 create_or_ignore(m) = !isdir(m) && !isfile(m) && mkpath(m)
+
+
+"""
+Returns whether a document is a Markdown document
+Should the default extension be .md or .mrbl
+"""
+function ismarkdown(path, extension="md")
+    file = split(path, "/")[end]
+    ext = split(file, ".")[end]
+    return ext == extension ? true : false
+end
+ismarkdown(path, s::SettingsBundle) = ismarkdown(path, extension=s["md_extension"])

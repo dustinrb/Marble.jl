@@ -168,14 +168,12 @@ function build(env::MarbleDoc)
     builddir = relpath(env.settings["paths"]["build"])
 
     logf = open(joinpath(env.settings["paths"]["log"], "$(get_basename(env))_build.log"), "a")
-    errf = open(joinpath(env.settings["paths"]["log"], "$(get_basename(env))_error.log"), "a")
     write(logf, "\nBuild at $(now())\n")
-    write(errf, "\nBuild at $(now())\n")
 
     if env.settings["topdf"]
         try
             runindir(builddir) do
-                run(pipeline(`latexmk -$(env.settings["texcmd"]) -shell-escape -halt-on-error $(env.settings["paths"]["base"])/$(env.docname).tex`; stdout=logf, stderr=errf))
+                run(pipeline(`latexmk -$(env.settings["texcmd"]) -shell-escape -halt-on-error $(env.settings["paths"]["base"])/$(env.docname).tex`; stdout=logf, stderr=logf))
             end
             println("DONE")
         catch y
