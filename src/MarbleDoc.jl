@@ -17,7 +17,7 @@ type MarbleDoc
     function MarbleDoc(docname, raw, cache, settings)
         templates = LazyTemplateLoader([
                 settings["paths"]["template"],
-                "$(ENV["HOME"])/.mrbl/templates",
+                mrbldir("templates"),
                 "$(Pkg.dir("Marble"))/templates"
             ];
             block_start_string=settings["JINJA_block_start_string"],
@@ -168,21 +168,24 @@ function build(env::MarbleDoc)
     builddir = relpath(env.settings["paths"]["build"])
 
     logf = open(joinpath(env.settings["paths"]["log"], "$(get_basename(env))_build.log"), "a")
-    write(logf, "\nBuild at $(now())\n")
+    write(logf, "\n===== Build at $(now()) =====\n")
 
     if env.settings["topdf"]
         try
             runindir(builddir) do
-                run(pipeline(`latexmk -$(env.settings["texcmd"]) -shell-escape -halt-on-error $(env.settings["paths"]["base"])/$(env.docname).tex`; stdout=logf, stderr=logf))
+                run(pipeline(`latexmk -$(env.settings["texcmd"]) -shell-escape -halt-on-error $(env.settings["paths"]["base"])/$(basename).tex`; stdout=logf, stderr=logf))
             end
             println("DONE")
         catch y
+            if !isa(y, ErrorException)
+                rethrow(y)
+            end
+
             print_with_color(:red, "BUILD FAILED: ")
-            println("See $(abspath(env.settings["paths"]["log"]))/$(basename)_error.log for details.")
-            return
+            println("See $(abspath(env.settings["paths"]["log"]))/$(basename)_build.log for details.")
+            return nothing
         finally
-          close(logf)
-          close(errf)
+            close(logf)
         end
     end
 end
@@ -220,7 +223,7 @@ function get_analysis(env)
             pin!(env.cache, a_file)
         else
             println("Using cached analysis file")
-            out = JSON.parsefile("$(env.settings["cachedir"])/analysis.json")
+            out = JSON.parsefile("$(env.settings["paths"]["cache"])/analysis.json")
         end
     end
     return nothing
@@ -241,14 +244,3 @@ function walk(f::Function, env::MarbleDoc)
         f(env.tree.content[n], (n,), env)
     end
 end
-
-"""
-Gets a proper basename for the environment
-"""
-function get_basename(name)
-    last_ind = findlast(name, '.')
-    last_ind = last_ind == 0 ? length(name) : findlast(name, '.') - 1
-    return name[1:last_ind]
-end
-
-get_basename(env::MarbleDoc) = get_basename(env.docname)

@@ -34,9 +34,9 @@ reload("Marble")
 Marble.build_file(fpath, out="/Users/dustinrb/Desktop/test.pdf")
 Marble.build_file(file_path, out="/Users/dustinrb/Desktop/test2.pdf")
 
-using Plots
-pyplot()
-plot(rand(5), rand(5))
+# Build folder
+fpath = "/Users/dustinrb/Desktop/test2"
+build_dir(fpath)
 
 # Init Document
 using Marble

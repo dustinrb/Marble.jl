@@ -1,6 +1,6 @@
 module CLIFramework
 
-export CommandBundle, addcmd!, dispatch
+export CommandBundle, add!, dispatch
 
 type CommandBundle
     commands::Dict{AbstractString, Function}
@@ -12,7 +12,7 @@ end
 Assign a function to a command (will be passed the remainter of ARGS
     as an argument)
 """
-addcmd!(f::Function, cb::CommandBundle, key::AbstractString) = cb.commands[key] = f
+add!(f::Function, cb::CommandBundle, key::AbstractString) = cb.commands[key] = f
 
 function dispatch(cb::CommandBundle)
     if isempty(ARGS)

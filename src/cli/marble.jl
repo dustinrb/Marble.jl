@@ -1,35 +1,65 @@
 #! /usr/local/bin/julia
-include("$(Pkg.dir("Marble"))/src/cli/cli_framework.jl")
+const srcpath = "$(Pkg.dir("Marble"))/src"
 
-using Marble
+include("$srcpath/cli/cli_framework.jl")
+
+using ArgParse
 using CLIFramework
-using SettingsBundles
+using Marble
 
-srcpath = "$(Pkg.dir("Marble"))/src"
-include("$(srcpath)/cli/util.jl")
-include("$(srcpath)/cli/commands.jl")
+"""
+The baseic `mrbl` command.
 
+    mrbl [options] [path]
+
+Options:
+    clean: whether to clean the latex build dir
+    out <path>: what should the outfile be name (single file only)
+    format <fmt>: Out format. Options are `tex` and `pdf`. `html` comming... eventually
+
+Arguments:
+    path: Which file or directory to build using marble
+"""
 commands = CommandBundle() do args
-    # println("I havent gotten my act together")
-    # exit()
-    if length(args) == 0
-        makepath(pwd())
-    elseif isdir(args[1])
-        makepath(args[1])
-    elseif isfile(args[1])
-        build_file(args[1])
+    s = ArgParseSettings()
+    @add_arg_table s begin
+        "--clean", "-c"
+            help = "clean marble build dir befor building"
+            action = :store_true
+        "--out", "-o"
+            help = "output name/path for finished file (single file only)"
+            default = nothing
+        "--format"
+            help = "output format. `tex` or `pdf`. `html` comming... eventually"
+            arg_type = Symbol
+            default = :pdf
+        "path"
+            help = "File or directory to compile with Marble"
+            default = pwd()
+    end
+    a = parse_args(args, s)
+    path = ispath(a["path"]) ? a["path"] : error("$(a["path"]) is a not a valide path.")
+
+    # Remove existing tex build files
+    if a["clean"]
+        Marble.clean_tex(path)
+    end
+
+    # Build appropriate file types
+    if isdir(path)
+        Marble.build_dir(path; fmt=a["format"], out=a["out"])
     else
-        println("$(args[1]) is a banna")
+        Marble.build_file(path; fmt=a["format"], out=a["out"])
     end
 end
 
-addcmd!(commands, "init") do args
+add!(commands, "init") do args
     if length(args[1])
         init_project(args[1])
     end
 end
 
-addcmd!(commands, "stream") do args
+add!(commands, "stream") do args
     error("Improperly implemented. Try later")
     exit()
     global STDOUT

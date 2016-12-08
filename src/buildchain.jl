@@ -1,10 +1,11 @@
 """
 Simplification of MarbleDoc constructor
 """
-function get_doc(contents, path, docname; cache=nothing)
+function get_doc(contents, path, docname; settings=nothing, cache=nothing)
     # Configure the build env
-    settings = get_settings(path)
+    settings = settings == nothing ? get_settings(path) : settings
     create_paths(settings)
+
     cache = cache == nothing ? States("$(settings["paths"]["cache"])/hashes.json") : cache
 
     return Marble.MarbleDoc(
@@ -18,10 +19,16 @@ end
 """
 Builds document with Marble
 """
-function build(contents, path, docname; build::Bool=true, cache=nothing)
+function build(contents, path, docname; build::Bool=true, cache=nothing, settings=nothing)
+    doc = get_doc(contents, path, docname; cache=cache, settings=settings)
+    return build_steps!(doc; build=build)
+end
 
-    doc = get_doc(contents, path, docname; cache=cache)
 
+"""
+Runs build steps for a MarblDoc
+"""
+function build_steps!(doc::MarbleDoc; build=true)
     # Build the document
     Marble.parse(doc)
     Marble.process(doc)
@@ -36,11 +43,20 @@ end
 """
 Given a directory, compiles all documents under the documents settings
 """
-function build_dir(path)
+function build_dir(path; watch=false)
     settings = get_settings(path)
     cache = States("$(settings["paths"]["cache"])/hashes.json")
 
-    files = filter(x->ismarkdown(x, settings), readdir(path))
+    files = [filter(x->ismarkdown(x, settings), readdir(path))]
+    files = [joinpaths(path, f) for f in files]
+    docs = map(files) do f
+        doc = get_doc(
+            readstring(joinpath(path, f)),
+            path,
+            f;
+            settings = SettingsBundle(settings),
+            cache = cache)
+    end
 end
 
 
@@ -52,10 +68,10 @@ function build_file(file; fmt=:pdf, out=nothing)
     doc = build(
         readstring(file),
         mrbldir("files/$(bytes2hex(sha1(abspath(file))))"),
-        split(get_basename(file), "/")[end];
+        splitdir(file)[2];
         build=(fmt==:pdf))
 
-    out_path = out == nothing ? "$(pwd())/$(doc.docname).pdf" : out
+    out_path = out == nothing ? "$(pwd())/$(get_basename(doc)).pdf" : out
     isdir(out_path) && error("$out_path is an existing directory")
 
     # Move to the desired directory
@@ -134,7 +150,7 @@ function get_settings(path; runtime_settings=Dict())
     # println("Loading settings... ") # LOGGING
     s = SettingsBundle()
     load_conf_file!(s, "$(Pkg.dir("Marble"))/defaults.yaml") # Defaults
-    load_conf_file!(s, "$(ENV["HOME"])/.mrbl/settings.yaml") # User settings
+    load_conf_file!(s, "$(homedir())/.mrbl/settings.yaml") # User settings
     add!(s, Dict("paths"=>get_paths(path))) # Settings Path
     add!(s, runtime_settings)
     load_conf_file!(s, "$path/settings.yaml") # Project Settings
@@ -179,10 +195,11 @@ end
 Gets the appropriate output path for a given file format
 """
 function get_out_doc(env::MarbleDoc, fmt::Symbol)::String
+    basename = get_basename(env)
     if fmt == :pdf
-        return "$(env.settings["paths"]["build"])/$(env.docname).pdf"
+        return "$(env.settings["paths"]["build"])/$(basename).pdf"
     elseif fmt == :tex
-        return "$(env.settings["paths"]["base"])/$(env.docname).tex"
+        return "$(env.settings["paths"]["base"])/$(basename).tex"
     else
         error("Unknown output format $fmt")
     end
@@ -231,15 +248,3 @@ end
 Creates the mrbl dir (if it need to be build)
 """
 create_or_ignore(m) = !isdir(m) && !isfile(m) && mkpath(m)
-
-
-"""
-Returns whether a document is a Markdown document
-Should the default extension be .md or .mrbl
-"""
-function ismarkdown(path, extension="md")
-    file = split(path, "/")[end]
-    ext = split(file, ".")[end]
-    return ext == extension ? true : false
-end
-ismarkdown(path, s::SettingsBundle) = ismarkdown(path, extension=s["md_extension"])
