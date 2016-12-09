@@ -3,6 +3,7 @@
 <% block packages_extra %>
 \usepackage{fancyhdr}
 \usepackage{lastpage}
+<% if settings.doublespace %>\usepackage{indentfirst}<% endif %>
 <% endblock %>
 
 <% block packageconf_extra %>
@@ -14,6 +15,11 @@
 
 \setlength{\parindent}{0em}
 \setlength{\parskip}{1.2em}
+
+<% if settings.doublespace %>
+\doublespacing
+\setlength{\parindent}{1.27cm}
+<% endif %>
 <% endblock %>
 
 <% block maketitle %>\begin{center}<|settings.title|>\end{center}<% endblock %>

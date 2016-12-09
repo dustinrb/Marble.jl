@@ -48,24 +48,7 @@ commands = CommandBundle() do args
         Marble.clean_tex(path)
     end
 
-    # Build appropriate file types
-    if isdir(path)
-        Marble.build_dir(path; fmt=a["format"], out=a["out"])
-    else
-        Marble.build_file(path; fmt=a["format"], out=a["out"])
-    end
-
-    # Ham fisted implementation of watched files
-    a["watch"] && println("Watching for changes. Press Ctl-c to stop.")
-    while a["watch"]
-        if watch_file(path).changed
-            if isdir(path)
-                Marble.build_dir(path; fmt=a["format"], out=a["out"])
-            else
-                Marble.build_file(path; fmt=a["format"], out=a["out"])
-            end
-        end
-    end
+    Marble.build_path(path; watch=a["watch"], fmt=a["format"], out=a["out"])
 end
 
 add!(commands, "init") do args

@@ -41,6 +41,33 @@ end
 
 
 """
+Builds path dependant on whether it is a directory or single file
+
+NOTE: options `fmt` and `out` are not applicable for building a directoy
+"""
+function build_path(path; watch=false, fmt=:pdf, out=nothing)
+    # Build appropriate file types
+    if isdir(path)
+        Marble.build_dir(path; watch=watch)
+    else
+        Marble.build_file(path; fmt=fmt, out=out)
+    end
+
+    # Ham fisted implementation of watched files
+    watch && println("Watching for changes. Press Ctl-c to stop.")
+    while watch
+        if watch_file(path).changed
+            if isdir(path)
+                Marble.build_dir(path; watch=watch)
+            else
+                Marble.build_file(path; fmt=fmt, out=out)
+            end
+        end
+    end
+end
+
+
+"""
 Given a directory, compiles all documents under the documents settings
 """
 function build_dir(path; watch=false)
