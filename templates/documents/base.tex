@@ -41,7 +41,7 @@
 <% block content__before %><% endblock %>
 % Front matter
 <% block content %>
-<% if settings.title %>\maketitle<% endif %>
+<% block maketitle %><% if settings.title %>\maketitle<% endif %><% endblock %>
 <% if abstract %>\begin{abstract}<|abstract|>\end{abstract}<% endif %>
 <% if settings.toc %>\tableofcontents<% endif %>
 

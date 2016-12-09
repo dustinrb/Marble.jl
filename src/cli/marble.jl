@@ -33,6 +33,9 @@ commands = CommandBundle() do args
             help = "output format. `tex` or `pdf`. `html` comming... eventually"
             arg_type = Symbol
             default = :pdf
+        "--watch", "-w"
+            help = "watch for changes and update file build"
+            action = :store_true
         "path"
             help = "File or directory to compile with Marble"
             default = pwd()
@@ -50,6 +53,18 @@ commands = CommandBundle() do args
         Marble.build_dir(path; fmt=a["format"], out=a["out"])
     else
         Marble.build_file(path; fmt=a["format"], out=a["out"])
+    end
+
+    # Ham fisted implementation of watched files
+    a["watch"] && println("Watching for changes. Press Ctl-c to stop.")
+    while a["watch"]
+        if watch_file(path).changed
+            if isdir(path)
+                Marble.build_dir(path; fmt=a["format"], out=a["out"])
+            else
+                Marble.build_file(path; fmt=a["format"], out=a["out"])
+            end
+        end
     end
 end
 
