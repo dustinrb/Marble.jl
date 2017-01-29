@@ -34,8 +34,6 @@ end
 
 """
 Removes the file extension from a file or directory
-Code is a bit obtuse because simply splitting and joining would
-be more difficult for file such as file.backup.md
 """
 trimext(path) = splitext(path)[1]
 trimext(doc::MarbleDoc) = trimext(doc.docname)
@@ -60,5 +58,5 @@ get_basename(e::MarbleDoc) = get_basename(e.docname)
 Returns whether a document is a Markdown document
 Should the default extension be .md or .mrbl
 """
-ismarkdown(path, extension="md") = splitext(path)[2] == extension ? true : false
+ismarkdown(path, extension=["md"]) = ext(path) ∈ extension ? true : false
 ismarkdown(path, s::SettingsBundle) = ismarkdown(path, extension=s["md_extension"])

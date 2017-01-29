@@ -78,19 +78,19 @@ end
 function interpreted_inline(stream::IO, md::Markdown.MD)
     # Memory allocation every time function is run
     tags = Dict(
-        "math" => InlineMath,
-        "tex" => InlineTex,
+        ".math" => InlineMath,
+        ".tex" => InlineTex,
         "@" => InlineCite,
         "#" => InlineRef,
-        "unit" => InlineUnit,
-        "ce" => InlineCE,
+        ".unit" => InlineUnit,
+        ".ce" => InlineCE,
         "\$" => InlineData,
         "^" => InlineFootnote
     )
 
     inline_key = ""
     for key in keys(tags)
-        if Markdown.startswith(stream, "($key")
+        if Markdown.startswith(stream, "[$key")
             inline_key = key
             break
         end
@@ -100,6 +100,6 @@ function interpreted_inline(stream::IO, md::Markdown.MD)
         return nothing
     end
 
-    text = Markdown.readuntil(stream, ')', match='(')
+    text = Markdown.readuntil(stream, ']', match='[')
     return text === nothing ? nothing : tags[inline_key](text, md)
 end

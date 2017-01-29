@@ -90,9 +90,10 @@ function jinja(env, md::Marble.Figure)
     return JinjaTemplates.render(env.templates, "elements/latex/$(get_template_name(md)).tex";
         settings=env.scratch[:settings_cache],
         name=md.name,
-        path=md.path,
+        path=isempty(md.path) ? "" : abspath(md.path),
         caption=jinja(env, md.caption),
-        tex=md.tex)
+        tex=md.tex,
+        width=md.width)
 end
 
 function jinja(env, md::Marble.Equation)

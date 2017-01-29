@@ -1,6 +1,6 @@
 \begin{figure}[h!]
     \centering
-    <% if path %>\includegraphics<% if settings.imagewidth %>[width=<|settings.imagewidth|>]<% endif %>{<|path|>}<% endif %>
+    <% if path %>\includegraphics<%if width%>[width=<|width|>]<% elif settings.imagewidth %>[width=<|settings.imagewidth|>]<% endif %>{<|path|>}<% endif %>
     <|tex|>
     \caption{<|caption|>}
     \label{<|name|>}

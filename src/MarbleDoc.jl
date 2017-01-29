@@ -101,16 +101,19 @@ function process(env::MarbleDoc)
     ref_ind = 0
     addrefs = false
     walk(env) do e, c, env
-        if isa(e, Markdown.Header) &&
-            strip(e.text[1]) == env.settings["references_header"]
-            ref_ind = c[1]
-            addrefs = true
+        try
+            if isa(e, Markdown.Header) &&
+                strip(e.text[1]) == env.settings["references_header"]
+                ref_ind = c[1]
+                addrefs = true
+            end
+        catch
         end
     end
     # replace header with actual element
     if ref_ind != 0
-        deleteat!(env.tree.content, ref_ind)
-        insert!(env.tree.content, ref_ind, Tex("\\printbibliography\n"))
+        # deleteat!(env.tree.content, ref_ind)
+        insert!(env.tree.content, ref_ind + 1, Tex("\\printbibliography[heading=none]\n"))
     end
 
     # probably side load the processors, e.g. for processor in processors...
@@ -167,7 +170,7 @@ function build(env::MarbleDoc)
     texfile = "$(env.settings["paths"]["base"])/$(get_basename(env)).tex"
     builddir = relpath(env.settings["paths"]["build"])
 
-    logf = open(joinpath(env.settings["paths"]["log"], "$(get_basename(env))_build.log"), "a")
+    logf = open(joinpath(env.settings["paths"]["log"], "$(get_basename(env))_build.log"), "w")
     write(logf, "\n===== Build at $(now()) =====\n")
 
     if env.settings["topdf"]
@@ -212,8 +215,8 @@ function get_analysis(env)
 
             try
                 out = JSON.parse(readstring(`$exec`))
-                open(f->JSON.print(f, env.scratch[:analysis]),
-                    "$(env.settings["cachedir"])/analysis.json",
+                open(f->JSON.print(f, out),
+                    "$(env.settings["paths"]["cache"])/analysis.json",
                     "w")
             catch y
                 out = Dict()
@@ -226,7 +229,7 @@ function get_analysis(env)
             out = JSON.parsefile("$(env.settings["paths"]["cache"])/analysis.json")
         end
     end
-    return nothing
+    return out
 end
 
 """

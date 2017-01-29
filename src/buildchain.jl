@@ -74,8 +74,9 @@ function build_dir(path; watch=false)
     settings = get_settings(path)
     cache = States("$(settings["paths"]["cache"])/hashes.json")
 
-    files = [filter(x->ismarkdown(x, settings), readdir(path))]
-    files = [joinpaths(path, f) for f in files]
+    files = [filter(x->ismarkdown(x), readdir(path))] # Hardcoding to get rid of error
+    show(files)
+    files = [joinpath(path, f[1]) for f in files]
     docs = map(files) do f
         doc = get_doc(
             readstring(joinpath(path, f)),

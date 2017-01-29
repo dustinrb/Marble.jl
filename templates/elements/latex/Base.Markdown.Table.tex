@@ -1,10 +1,11 @@
 \begin{table}[h]
+\centering
     \begin{tabular}{<% for h in alignment %><% if h=="right" %>r<% elif h=="left" %>l<% elif h=="decimal" %>S<% else %>c<% endif %><% endfor %>}
         \toprule
         <| headers|join(' & ') |> \\
         \midrule
         <% for row in content %><| row|join(' & ') |> \\
-        <% endfor %> 
+        <% endfor %>
         \bottomrule
     \end{tabular}
     \centering

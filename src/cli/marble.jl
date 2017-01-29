@@ -52,8 +52,8 @@ commands = CommandBundle() do args
 end
 
 add!(commands, "init") do args
-    if length(args[1])
-        init_project(args[1])
+    if length(args) == 1
+        init_dir(args[1])
     end
 end
 

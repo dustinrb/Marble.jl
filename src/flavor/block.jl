@@ -6,6 +6,7 @@ type Figure
     name
     caption
     tex
+    width
 
     function Figure(stream::IO, md::Markdown.MD)
         data = YAML.load(stream)
@@ -13,7 +14,8 @@ type Figure
             get(data, "path", ""),
             get(data, "name", ""),
             Markdown.parseinline(get(data, "caption", ""), md),
-            get(data, "tex", "")
+            get(data, "tex", ""),
+            get(data, "width", "")
         ))
     end
 end
@@ -160,11 +162,11 @@ end
 
 function YAMLelement(stream::IO, md::Markdown.MD)
     elements = Dict(
-        "Figure:" => Figure,
-        "Table:" => Table,
-        "Equation:" => Equation,
-        "Tex:" => Tex,
-        "Document:" => Document,
+        ".Figure" => Figure,
+        ".Table" => Table,
+        ".Equation" => Equation,
+        ".Tex" => Tex,
+        ".Document" => Document,
     )
 
     # Check if the line starts with one of our keywords
