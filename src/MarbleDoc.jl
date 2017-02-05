@@ -228,7 +228,10 @@ function get_analysis(env)
             println("Using cached analysis file")
             out = JSON.parsefile("$(env.settings["paths"]["cache"])/analysis.json")
         end
+    else
+        out = Dict()
     end
+    
     return out
 end
 
